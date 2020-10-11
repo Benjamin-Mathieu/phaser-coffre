@@ -13,13 +13,4 @@ node_modules/
 dist/
 /npm-debug.log
 
-#assets
-src/assets/background.jpg
-src/assets/bip.wav
-src/assets/bravo.png
-src/assets/button1.png
-src/assets/button2.png
-src/assets/button3.png
-src/assets/button4.png
-src/assets/success.mp3
-src/assets/treasure.png
+
