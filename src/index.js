@@ -1,32 +1,98 @@
 import Phaser from "phaser";
-import logoImg from "./assets/logo.png";
 
 const config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
-  width: 800,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 200 }
+    }
+  },
   scene: {
     preload: preload,
-    create: create
+    create: create,
+    update: update
+  },
+  debug: {
+    showBody: true,
+    showStaticBody: true
   }
 };
 
 const game = new Phaser.Game(config);
+var code = "1234";
+var codeToCheck = "";
+var treasure;
 
 function preload() {
-  this.load.image("logo", logoImg);
+  this.load.image('treasure', 'src/assets/treasure.png');
+  this.load.image('button1', 'src/assets/button1.png');
+  this.load.image('button2', 'src/assets/button2.png');
+  this.load.image('button3', 'src/assets/button3.png');
+  this.load.image('button4', 'src/assets/button4.png');
+  this.load.image('background', 'src/assets/background.jpg')
+  this.load.image('bravo', 'src/assets/bravo.png');
+  this.load.audio('bip', 'src/assets/bip.wav');
+  this.load.audio('success', 'src/assets/success.mp3')
 }
 
 function create() {
-  const logo = this.add.image(400, 150, "logo");
+  console.log(this);
+  this.add.text(0, 0, "Rentrez code: " + code);
+  treasure = this.add.sprite(this.game.renderer.width / 2, this.game.renderer.height / 2, 'treasure').setInteractive();
+  var button1 = this.add.image(250, 500, 'button1');
+  var button2 = this.add.image(350, 500, 'button2');
+  var button3 = this.add.image(450, 500, 'button3');
+  var button4 = this.add.image(550, 500, 'button4');
 
-  this.tweens.add({
-    targets: logo,
-    y: 450,
-    duration: 2000,
-    ease: "Power2",
-    yoyo: true,
-    loop: -1
+  var buttons = [button1, button2, button3, button4];
+
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].setInteractive();
+
+    buttons[i].on('clicked', function () {
+      // Appel la fonction onClickButton en réassignant le contexte
+      onClickButton.apply(this, [(i + 1).toString()]);
+    }, this);
+  }
+
+  //  If a Game Object is clicked on, this event is fired.
+  //  We can use it to emit the 'clicked' event on the game object itself.
+  this.input.on('gameobjectup', function (pointer, gameObject) {
+    gameObject.emit('clicked', gameObject);
+  }, this);
+
+
+  // Dire sur quel objet travaillé pour le rendre déplaçable
+  this.input.setDraggable(treasure);
+  // Possible d'utiliser dragstart et dragend en déplacement pour effectuer des actions 
+  this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+
+    gameObject.x = dragX;
+    gameObject.y = dragY;
+
   });
+
+}
+
+function onClickButton(numberButton) {
+  this.sound.play('bip');
+  codeToCheck += numberButton;
+  console.log(codeToCheck);
+
+  if (codeToCheck.length === 4) {
+    if (codeToCheck === code) {
+      treasure.destroy();
+      this.sound.play('success');
+      this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'bravo').setScale(0.7);
+    } else {
+      window.alert('Retapez le code');
+      codeToCheck = "";
+    }
+  }
+}
+
+function update() {
 }
