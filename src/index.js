@@ -4,29 +4,27 @@ const config = {
   type: Phaser.AUTO,
   width: window.innerWidth,
   height: window.innerHeight,
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { y: 200 }
-    }
-  },
   scene: {
     preload: preload,
     create: create,
     update: update
   },
-  debug: {
-    showBody: true,
-    showStaticBody: true
-  }
 };
 
 const game = new Phaser.Game(config);
-var code = "1234";
+var code = 0;
 var codeToCheck = "";
 var treasure;
 
+// Générer aléatoirement le code du coffre
+for (let i = 0; i < 4; i++) {
+  const random = Math.floor(Math.random() * 4) + 1;
+  code = code + (random * Math.pow(10, i));
+  console.log(code);
+}
+
 function preload() {
+  // IMAGE
   this.load.image('treasure', 'src/assets/treasure.png');
   this.load.image('button1', 'src/assets/button1.png');
   this.load.image('button2', 'src/assets/button2.png');
@@ -34,7 +32,10 @@ function preload() {
   this.load.image('button4', 'src/assets/button4.png');
   this.load.image('background', 'src/assets/background.jpg')
   this.load.image('bravo', 'src/assets/bravo.png');
+
+  // AUDIO
   this.load.audio('bip', 'src/assets/bip.wav');
+  this.load.audio('error', 'src/assets/error.wav');
   this.load.audio('success', 'src/assets/success.mp3')
 }
 
@@ -69,26 +70,30 @@ function create() {
   this.input.setDraggable(treasure);
   // Possible d'utiliser dragstart et dragend en déplacement pour effectuer des actions 
   this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
-
     gameObject.x = dragX;
     gameObject.y = dragY;
-
   });
 
 }
 
+// Vérification du code
 function onClickButton(numberButton) {
   this.sound.play('bip');
+  treasure.clearTint();
   codeToCheck += numberButton;
   console.log(codeToCheck);
 
   if (codeToCheck.length === 4) {
-    if (codeToCheck === code) {
+    if (codeToCheck == code) {
+      // Supprime l'objet de la scène
       treasure.destroy();
       this.sound.play('success');
       this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'bravo').setScale(0.7);
+
     } else {
-      window.alert('Retapez le code');
+      this.sound.play('error');
+      // Effet rouge sur l'image
+      treasure.setTint(0xff0000);
       codeToCheck = "";
     }
   }
