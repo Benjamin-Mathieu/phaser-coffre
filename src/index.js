@@ -5,6 +5,7 @@ window.onload = function () {
     type: Phaser.AUTO,
     width: window.innerWidth,
     height: window.innerHeight,
+    backgroundColor: '#b0b2ad',
     scene: [menu, playGame]
   }
   const game = new Phaser.Game(config);
@@ -18,7 +19,7 @@ class menu extends Phaser.Scene {
     super({ key: 'menu' })
   }
   preaload() {
-    this.load.image('button1', 'src/assets/button1.png');
+    this.load.image('play', 'src/assets/playbutton.png');
   }
   create() {
     this.add.text(0, 0, "Appuyer sur la touche espace pour commencer", { fontSize: '2em', fontStyle: 'bold', boundsAlignH: "center", boundsAlignV: "middle" });
@@ -49,13 +50,13 @@ class playGame extends Phaser.Scene {
 
   preload() {
     // IMAGE
-    this.load.image('treasure', 'src/assets/treasure.png');
+    this.load.image('coffre', 'src/assets/coffre.png');
+    this.load.image('open', 'src/assets/opencoffre.png');
     this.load.image('button1', 'src/assets/button1.png');
     this.load.image('button2', 'src/assets/button2.png');
     this.load.image('button3', 'src/assets/button3.png');
     this.load.image('button4', 'src/assets/button4.png');
-    this.load.image('background', 'src/assets/background.jpg')
-    this.load.image('bravo', 'src/assets/bravo.png');
+    this.load.image('env', 'src/assets/env.png');
 
     // AUDIO
     this.load.audio('bip', 'src/assets/bip.wav');
@@ -77,7 +78,7 @@ class playGame extends Phaser.Scene {
 
     console.log(this);
     this.add.text(0, 0, "Rentrez code: " + code);
-    treasure = this.add.sprite(this.game.renderer.width / 2, this.game.renderer.height / 2, 'treasure').setInteractive();
+    treasure = this.add.sprite(this.game.renderer.width / 2, this.game.renderer.height / 2, 'coffre').setInteractive();
     var button1 = this.add.image(250, 500, 'button1');
     var button2 = this.add.image(350, 500, 'button2');
     var button3 = this.add.image(450, 500, 'button3');
@@ -121,7 +122,17 @@ class playGame extends Phaser.Scene {
           // Supprime l'objet de la scène
           treasure.destroy();
           this.sound.play('success');
-          this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'bravo').setScale(0.7);
+
+          setTimeout(() => {
+            this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'open');
+          }, 1000);
+
+          setTimeout(() => {
+            let popup = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'env').setScale(0.5).setInteractive();
+            popup.on('clicked', () => {
+              this.add.text(this.game.renderer.width / 2, this.game.renderer.height / 2, "Vous avez trouvé le code, bravo !", { fontSize: '5em', fontStyle: 'bold', color: 'red' });
+            })
+          }, 2000);
 
         } else {
           this.sound.play('error');
