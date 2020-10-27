@@ -18,29 +18,68 @@ class menu extends Phaser.Scene {
   constructor() {
     super({ key: 'menu' })
   }
-  preaload() {
-    this.load.image('play', 'src/assets/playbutton.png');
+
+  preload() {
+    this.load.image('play', 'src/assets/play.png');
   }
+
   create() {
     this.add.text(0, 0, "Appuyer sur la touche espace pour commencer", { fontSize: '2em', fontStyle: 'bold', boundsAlignH: "center", boundsAlignV: "middle" });
-    const play = document.querySelector('#start');
-    play.addEventListener('click', () => {
+
+    var playButton = this.add.image(0, 0, 'play').setScale(0.3);
+    var text = this.add.text(0, 0, 'Play', { fontSize: '10em', color: 'black', fontStyle: 'bold', boundsAlignH: "center", boundsAlignV: "middle" }).setOrigin(0.5);
+
+    // Permet de centré dans la scène
+    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+
+    // Ajout d'un container qui contient l'image playButton et le texte à l'intérieur
+    var container = this.add.container(screenCenterX, screenCenterY, [playButton, text]);
+
+    // Ajout d'une "hit aera" qui permet d'activer l'animation lorsque la souris et proche du texte 'Play'
+    container.setInteractive(new Phaser.Geom.Circle(0, 0, 120), Phaser.Geom.Circle.Contains);
+
+    // Permet de faire l'animation sur le texte
+    this.tweens.add({
+      targets: text,
+      alpha: 0.5,
+      duration: 1000,
+      ease: 'Sine.easeOut',
+      yoyo: true,
+      repeat: -1
+    });
+
+    container.on('pointerover', function () {
+      playButton.setTint(0x44ff44);
+    });
+
+    container.on('pointerout', function () {
+      playButton.clearTint();
+    });
+
+    // Lance la scène playGame quand on clique sur l'image
+    container.on('pointerup', () => {
       this.game.scene.stop('menu');
       this.game.scene.start('playGame');
     })
 
+    //  Montre la zone cliquable pour lancer la scène
+    var graphics = this.add.graphics();
+    graphics.lineStyle(2, 0x00ffff, 1);
+    graphics.strokeCircle(container.x, container.y, container.input.hitArea.radius);
+
     //  Input Events
     cursors = this.input.keyboard.createCursorKeys();
 
-
   }
+
   update() {
     if (cursors.space.isDown) {
       this.game.scene.stop('menu');
       this.game.scene.start('playGame');
-      console.log('i');
     }
   }
+
 }
 
 class playGame extends Phaser.Scene {
@@ -123,14 +162,16 @@ class playGame extends Phaser.Scene {
           treasure.destroy();
           this.sound.play('success');
 
+          // Affichage du coffre ouvert
           setTimeout(() => {
             this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'open');
           }, 1000);
 
+          // Affichage du popup
           setTimeout(() => {
             let popup = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'env').setScale(0.5).setInteractive();
             popup.on('clicked', () => {
-              this.add.text(this.game.renderer.width / 2, this.game.renderer.height / 2, "Vous avez trouvé le code, bravo !", { fontSize: '5em', fontStyle: 'bold', color: 'red' });
+              this.add.text(this.game.renderer.width / 2, this.game.renderer.height / 2, "Vous avez trouvé le code, bravo !", { fontSize: '5em', fontStyle: 'bold', color: 'red' }).setOrigin(0.5);
             })
           }, 2000);
 
