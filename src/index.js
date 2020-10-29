@@ -6,7 +6,7 @@ window.onload = function () {
     width: window.innerWidth,
     height: window.innerHeight,
     backgroundColor: '#b0b2ad',
-    scene: [menu, playGame]
+    scene: [menu, playGame, nextLevel]
   }
   const game = new Phaser.Game(config);
   game.scene.start('menu');
@@ -24,10 +24,10 @@ class menu extends Phaser.Scene {
   }
 
   create() {
-    this.add.text(0, 0, "Appuyer sur la touche espace pour commencer", { fontSize: '2em', fontStyle: 'bold', boundsAlignH: "center", boundsAlignV: "middle" });
+    this.add.text(0, 0, "Appuyer sur la touche espace pour commencer", { fontSize: '2em', fontStyle: 'bold' });
 
     var playButton = this.add.image(0, 0, 'play').setScale(0.3);
-    var text = this.add.text(0, 0, 'Play', { fontSize: '10em', color: 'black', fontStyle: 'bold', boundsAlignH: "center", boundsAlignV: "middle" }).setOrigin(0.5);
+    var text = this.add.text(0, 0, 'Play', { fontSize: '10em', color: 'black', fontStyle: 'bold' }).setOrigin(0.5);
 
     // Permet de centré dans la scène
     const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
@@ -39,7 +39,7 @@ class menu extends Phaser.Scene {
     // Ajout d'une "hit aera" qui permet d'activer l'animation lorsque la souris et proche du texte 'Play'
     container.setInteractive(new Phaser.Geom.Circle(0, 0, 120), Phaser.Geom.Circle.Contains);
 
-    // Permet de faire l'animation sur le texte
+    // Permet de faire l'animation sur le texte PLAY
     this.tweens.add({
       targets: text,
       alpha: 0.5,
@@ -158,8 +158,11 @@ class playGame extends Phaser.Scene {
 
       if (codeToCheck.length === 4) {
         if (codeToCheck == code) {
-          // Supprime l'objet de la scène
+          // Supprime le coffre et les boutons interactif de la scène
           treasure.destroy();
+          for (let i = 0; i < buttons.length; i++) {
+            buttons[i].destroy();
+          }
           this.sound.play('success');
 
           // Affichage du coffre ouvert
@@ -170,8 +173,25 @@ class playGame extends Phaser.Scene {
           // Affichage du popup
           setTimeout(() => {
             let popup = this.add.image(this.game.renderer.width / 2, this.game.renderer.height / 2, 'env').setScale(0.5).setInteractive();
+
+            this.tweens.add({
+              targets: popup,
+              alpha: 0.5,
+              y: 300,
+              duration: 1000,
+              ease: 'Sine.easeOut',
+              yoyo: true,
+              repeat: -1
+            });
+
             popup.on('clicked', () => {
               this.add.text(this.game.renderer.width / 2, this.game.renderer.height / 2, "Vous avez trouvé le code, bravo !", { fontSize: '5em', fontStyle: 'bold', color: 'red' }).setOrigin(0.5);
+
+              let replay = this.add.text(0, 0, 'REJOUER', { fontSize: '10em', color: 'black', fontStyle: 'bold' }).setInteractive();
+
+              replay.on('pointerup', () => {
+                this.game.scene.start('playGame');
+              })
             })
           }, 2000);
 
@@ -186,4 +206,22 @@ class playGame extends Phaser.Scene {
 
   }
   update() { }
+}
+
+class nextLevel extends Phaser.Scene {
+  constructor() {
+    super({ key: 'nextLevel' })
+  }
+
+  preload() {
+
+  }
+
+  create() {
+    this.add.text(0, 0, 'LEVEL 2');
+  }
+
+  update() {
+
+  }
 }
