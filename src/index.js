@@ -3,13 +3,17 @@ import Phaser from "phaser";
 window.onload = function () {
   var config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    scale: {
+      mode: Phaser.Scale.FIT,
+      width: window.innerWidth,
+      height: window.innerHeight
+    },
     backgroundColor: '#b0b2ad',
     scene: [menu, playGame, nextLevel]
   }
   const game = new Phaser.Game(config);
   game.scene.start('menu');
+
 }
 
 var cursors;
